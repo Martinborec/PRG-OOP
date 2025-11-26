@@ -2,8 +2,8 @@
 ///     #1 ~ Násobky      ///
 
 
-$zaklad = 7; 
-$max = 30;   
+$zaklad = 9; 
+$max = 81;   
 
 for ($i = $zaklad; $i <= $max; $i += $zaklad) {
     echo $i;
