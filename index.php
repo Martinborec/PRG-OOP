@@ -1,15 +1,25 @@
 <?php
-///     #1 ~ Násobky      ///
 
+include 'player.php';
+include 'team.php';
 
-$zaklad = 9; 
-$max = 81;   
+// vytvoření týmu
+$team = new Team("FC EDUCAnet", "Brno", 3);
 
-for ($i = $zaklad; $i <= $max; $i += $zaklad) {
-    echo $i;
-    if ($i + $zaklad <= $max) {
-        echo ", ";
-    }
+// vytvoření hráčů
+$player1 = new Player("Martin Pavlík", 1, "Brankář");
+$player2 = new Player("Adrian Staněk", 4, "Obránce");
+$player3 = new Player("Maxim Veličko", 24, "Utočník");
+
+// hráči nastupují do týmu
+$team->addPlayer($player1);
+$team->addPlayer($player2);
+$team->addPlayer($player3);
+
+// výpis
+echo "Tým: {$team->name} ({$team->city})<br>";
+echo "Hráči:<br>";
+
+foreach ($team->players as $player) {
+    echo $player->introduce() . "<br>";
 }
-
-?>
