@@ -1,0 +1,17 @@
+{
+    "name": "42072/whoops",
+    "autoload": {
+        "psr-4": {
+            "42072\\Whoops\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Pavlas",
+            "email": "martin.pavlik@educanet.cz"
+        }
+    ],
+    "require": {
+        "filp/whoops": "^2.18"
+    }
+}
