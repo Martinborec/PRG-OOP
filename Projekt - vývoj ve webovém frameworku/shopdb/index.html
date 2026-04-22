@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopDB — Správa produktů</title>
+  <link rel="stylesheet" href="src/css/style.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════════ -->
+<header>
+  <div class="header-left">
+    <div class="logo">
+      <span>SHOP</span><span class="logo-accent">DB</span>
+    </div>
+    <span class="logo-tag">v1.0.0</span>
+  </div>
+  <div class="header-stats">
+    <div class="hstat">
+      <span class="hstat-val" id="stat-count">0</span>
+      <span class="hstat-label">Produktů</span>
+    </div>
+    <div class="hstat">
+      <span class="hstat-val" id="stat-stock">0</span>
+      <span class="hstat-label">Ks skladem</span>
+    </div>
+    <div class="hstat">
+      <span class="hstat-val" id="stat-value">0 Kč</span>
+      <span class="hstat-label">Hodnota skladu</span>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════
+     LAYOUT
+══════════════════════════════════════════════ -->
+<div class="layout">
+
+  <!-- ── SIDEBAR: Formulář ── -->
+  <aside class="sidebar">
+    <div class="sidebar-title" id="form-mode-label">NOVÝ PRODUKT</div>
+
+    <input type="hidden" id="edit-id">
+
+    <div class="form-group">
+      <label for="f-name">Název produktu *</label>
+      <input type="text" id="f-name" placeholder="Např. Herní headset Pro">
+    </div>
+
+    <div class="form-group">
+      <label for="f-category">Kategorie</label>
+      <select id="f-category">
+        <option value="">— Vybrat —</option>
+        <option>Elektronika</option>
+        <option>Příslušenství</option>
+        <option>Nábytek</option>
+        <option>Software</option>
+        <option>Oblečení</option>
+        <option>Potraviny</option>
+        <option>Sport</option>
+        <option>Hračky</option>
+        <option>Ostatní</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="f-price">Cena (Kč)</label>
+        <div class="input-wrap">
+          <span class="input-prefix">Kč</span>
+          <input type="number" id="f-price" placeholder="0" min="0" step="0.01">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="f-stock">Skladem (ks)</label>
+        <input type="number" id="f-stock" placeholder="0" min="0">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="f-sku">SKU <span style="color:var(--text-muted);font-size:9px">(auto)</span></label>
+      <input type="text" id="f-sku" placeholder="Generuje se automaticky">
+    </div>
+
+    <div class="form-group">
+      <label for="f-desc">Popis</label>
+      <textarea id="f-desc" placeholder="Krátký popis produktu…"></textarea>
+    </div>
+
+    <hr class="divider">
+
+    <button class="btn btn-primary" onclick="saveProduct()">
+      <span id="btn-save-label">Přidat produkt</span>
+    </button>
+    <button class="btn btn-cancel" id="btn-cancel" onclick="cancelEdit()" style="display:none">
+      Zrušit editaci
+    </button>
+  </aside>
+
+  <!-- ── CONTENT: Tabulka ── -->
+  <main class="content">
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="search"
+               placeholder="Hledat název, SKU, popis…"
+               oninput="renderTable()">
+      </div>
+      <select id="filter-cat" onchange="renderTable()">
+        <option value="">Všechny kategorie</option>
+        <option>Elektronika</option>
+        <option>Příslušenství</option>
+        <option>Nábytek</option>
+        <option>Software</option>
+        <option>Oblečení</option>
+        <option>Potraviny</option>
+        <option>Sport</option>
+        <option>Hračky</option>
+        <option>Ostatní</option>
+      </select>
+      <span class="record-count" id="record-count">Zobrazeno: <span>0</span></span>
+    </div>
+
+    <!-- Tabulka -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:50px">#</th>
+            <th data-col="name"     onclick="toggleSort('name')">Název <span class="sort-arrow">↕</span></th>
+            <th data-col="category" onclick="toggleSort('category')">Kategorie <span class="sort-arrow">↕</span></th>
+            <th data-col="price"    onclick="toggleSort('price')">Cena <span class="sort-arrow">↕</span></th>
+            <th data-col="stock"    onclick="toggleSort('stock')">Sklad <span class="sort-arrow">↕</span></th>
+            <th data-col="sku"      onclick="toggleSort('sku')">SKU <span class="sort-arrow">↕</span></th>
+            <th style="max-width:200px">Popis</th>
+            <th style="width:140px">Akce</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <!-- renderuje table.js -->
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MODAL — Potvrzení smazání
+══════════════════════════════════════════════ -->
+<div id="modal-overlay">
+  <div id="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-eyebrow">Destruktivní akce</div>
+    <div class="modal-title">Smazat produkt?</div>
+    <p class="modal-body">
+      Produkt <strong id="modal-product-name"></strong>
+      (SKU: <strong id="modal-product-sku"></strong>)
+      bude trvale odstraněn z databáze. Tuto akci nelze vzít zpět.
+    </p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost"          onclick="closeModal()">Zrušit</button>
+      <button class="btn btn-danger-confirm" onclick="confirmDelete()">Smazat</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- JS -->
+<script type="module" src="src/js/main.js"></script>
+
+</body>
+</html>
